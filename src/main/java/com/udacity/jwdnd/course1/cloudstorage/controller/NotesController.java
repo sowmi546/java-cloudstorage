@@ -32,12 +32,7 @@ public class NotesController {
      delete --> @Delete("/delete/noteid")
      */
 
-//    @GetMapping
-//    public String getHomePage(Authentication authentication, @ModelAttribute("noteForm") NoteForm noteForm)
-//    {
-//        return "home";
-//    }
-//
+
     @GetMapping
     public String getHomeView(Authentication authentication, @ModelAttribute("noteForm") NoteForm noteForm, Notes notes, Model model) {
         String username = authentication.getName();
@@ -102,7 +97,7 @@ public class NotesController {
 
 
             model.addAttribute("notes", this.notesService.getNotes(userid));
-            model.addAttribute("result", "success");
+            model.addAttribute("result", "deletion-success");
         }
         catch(Exception e){
             model.addAttribute("result","failed");
