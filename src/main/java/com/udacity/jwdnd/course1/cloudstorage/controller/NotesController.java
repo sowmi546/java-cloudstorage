@@ -26,10 +26,10 @@ public class NotesController {
 
     /**
      * need to write the logic to get the notes based on user id, create and update the notes and delete it
-     get --> @GetMapping("/view/fileId")
-     get -->@GetMapping("/view/userid/notes")
-     insert/update --> @PostMapping
-     delete --> @Delete("/delete/noteid")
+     * get --> @GetMapping("/view/fileId")
+     * get -->@GetMapping("/view/userid/notes")
+     * insert/update --> @PostMapping
+     * delete --> @Delete("/delete/noteid")
      */
 
 
@@ -41,25 +41,26 @@ public class NotesController {
         return "home";
 
     }
+
     @GetMapping("/{noteid}")
-    public Notes getNote(Integer noteid){
+    public Notes getNote(Integer noteid) {
         return notesService.getNotesByNoteId(noteid);
 
     }
-//    //
-////
+
     @GetMapping("/users/{userid}")
-    public List<Notes> getNotesByUser(Integer userid){
+    public List<Notes> getNotesByUser(Integer userid) {
         return notesService.getNotes(userid);
     }
-//
+
+    //
 //    /**
 //     * for inserting a new note we need note title, note description and the user id details
 //
 //     */
 //
     @PostMapping
-    public String createAndUpdateNote(Authentication authentication, @ModelAttribute("noteForm") NoteForm noteForm, Notes notes, Model model){
+    public String createAndUpdateNote(Authentication authentication, @ModelAttribute("noteForm") NoteForm noteForm, Notes notes, Model model) {
 
 
         String username = authentication.getName();
@@ -67,26 +68,21 @@ public class NotesController {
         String notedescription = noteForm.getNotedescription();
         String notetitle = noteForm.getNotetitle();
 
-        if(noteForm.getNoteid().isEmpty()){
-            notesService.createNote(notetitle, notedescription,userid);
-        }
-        else {
-            notesService.updateNotes(Integer.parseInt(noteForm.getNoteid()),notetitle, notedescription );
-
+        if (noteForm.getNoteid().isEmpty()) {
+            notesService.createNote(notetitle, notedescription, userid);
+        } else {
+            notesService.updateNotes(Integer.parseInt(noteForm.getNoteid()), notetitle, notedescription);
 
         }
 
         model.addAttribute("notes", notesService.getNotes(userid));
-        model.addAttribute("result","success");
+        model.addAttribute("result", "success");
         return "result";
     }
-//
-//
-//    //
-//
+
     @GetMapping("/remove/{noteid}")
-    public String deleteNote(Model model, Authentication authentication, @ModelAttribute("noteForm") NoteForm noteForm){
-        try{
+    public String deleteNote(Model model, Authentication authentication, @ModelAttribute("noteForm") NoteForm noteForm) {
+        try {
             //check whether logged in user is deleting the record or not
 //            String username =  authentication.getName();
 //            String loggedInUser = userService.getUser(username);
@@ -98,19 +94,14 @@ public class NotesController {
 
             model.addAttribute("notes", this.notesService.getNotes(userid));
             model.addAttribute("result", "deletion-success");
-        }
-        catch(Exception e){
-            model.addAttribute("result","failed");
-
+        } catch (Exception e) {
+            model.addAttribute("result", "failed");
 
         }
 
         return "result";
 
     }
-
-
-
 
 
 }

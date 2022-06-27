@@ -15,19 +15,21 @@ public class NotesService {
         this.noteMapper = noteMapper;
     }
 
-    /** we need to write the NoteService for creating, reading, updating and deleting the notes
-    public
+    /**
+     * we need to write the NoteService for creating, reading, updating and deleting the notes
+     * public
      */
-    public int createNote(String notetitle, String notedescription, int userid ) {
-        return noteMapper.insertNote(new Notes(0,notetitle,notedescription,userid));
+    public int createNote(String notetitle, String notedescription, int userid) {
+        return noteMapper.insertNote(new Notes(0, notetitle, notedescription, userid));
 
     }
-    public List<Notes> getNotes(int userid){
+
+    public List<Notes> getNotes(int userid) {
         return noteMapper.getNotes(userid);
 
     }
 
-    public Notes getNotesByNoteId(int noteid){
+    public Notes getNotesByNoteId(int noteid) {
         return noteMapper.getNotesByNoteId(noteid);
     }
 
@@ -35,7 +37,7 @@ public class NotesService {
         return noteMapper.updateNote(noteid, notetitle, notedescription);
     }
 
-    public int deleteNote(int noteid){
+    public int deleteNote(int noteid) {
         return noteMapper.deleteNote(noteid);
 
     }

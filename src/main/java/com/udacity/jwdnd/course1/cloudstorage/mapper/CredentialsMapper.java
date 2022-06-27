@@ -21,6 +21,4 @@ public interface CredentialsMapper {
     int deleteCredentials(int credentialId);
 
 
-
-
 }

@@ -19,16 +19,19 @@ public class FileService {
      * here fileService will have the logic to get the file, insert the file and delete the file
      */
 
-    public List<Files> getFiles(int userid){
+    public List<Files> getFiles(int userid) {
         return filesMapper.getFiles(userid);
     }
-    public Files getFileByName(String fileName) { return filesMapper.getFileByName(fileName);}
 
-    public int insertFile(Files files){
+    public Files getFileByName(String fileName) {
+        return filesMapper.getFileByName(fileName);
+    }
+
+    public int insertFile(Files files) {
         return filesMapper.insertFiles(files);
     }
 
-    public int deleteFile(String fileName){
+    public int deleteFile(String fileName) {
         return filesMapper.deleteFile(fileName);
     }
 

@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -32,15 +33,15 @@ public class FileController {
 
     /**
      * need to write the logic to get the files based on user id, insert the file and delete the file
-     get --> @GetMapping("/view/fileId")
-     get -->@GetMapping("/view/userid/files")
-     insert --> @PostMapping
-     delete --> @Delete("/delete/fileId")
+     * get --> @GetMapping("/view/fileId")
+     * get -->@GetMapping("/view/userid/files")
+     * insert --> @PostMapping
+     * delete --> @Delete("/delete/fileId")
      */
 
     @GetMapping
 
-    public String getFileView(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model){
+    public String getFileView(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model) {
         String username = authentication.getName();
         int userid = userService.getUser(username).getUserId();
         model.addAttribute("files", this.fileService.getFiles(userid));
@@ -50,15 +51,14 @@ public class FileController {
     @GetMapping("/view/{filename}")
 
 
-    public ResponseEntity getFileByName(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model, HttpServletResponse httpServletResponse, @PathVariable String filename){
-         Files f = fileService.getFileByName(filename);
-         byte[] fileData = f.getFiledata();
-         return ResponseEntity.ok()
-                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+filename+"\"")
-                                 .contentType(MediaType.parseMediaType(f.getContenttype()))
-                                         .contentLength(Long.parseLong(f.getFilesize()))
-                                                 .body(fileData);
-
+    public ResponseEntity getFileByName(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model, HttpServletResponse httpServletResponse, @PathVariable String filename) {
+        Files f = fileService.getFileByName(filename);
+        byte[] fileData = f.getFiledata();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType(f.getContenttype()))
+                .contentLength(Long.parseLong(f.getFilesize()))
+                .body(fileData);
 
 
     }
@@ -67,69 +67,76 @@ public class FileController {
     public String uploadFile(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model, @RequestParam("file") MultipartFile file) throws IOException {
         String username = authentication.getName();
         int userid = userService.getUser(username).getUserId();
+        try {
 
 
-            if(file.isEmpty()){
-
-                model.addAttribute("result","error");
+            if (file.isEmpty()) {
+                model.addAttribute("result", "error");
                 return "result";
+
+            }
+            if (file.getSize() > 4000000) {
+
+                throw new MaxUploadSizeExceededException(file.getSize());
+
             }
 
-            // check if a file already exists with the name
-            boolean isDuplicate=false;
+
+            boolean isDuplicate = false;
             String actualfilename = file.getOriginalFilename();
             List<Files> allFiles = fileService.getFiles(userid);
-            for(Files currentFile : allFiles){
-                if(currentFile.getFilename().equals(actualfilename)){
+            for (Files currentFile : allFiles) {
+                if (currentFile.getFilename().equals(actualfilename)) {
                     isDuplicate = true;
                     break;
                 }
             }
 
-            if(isDuplicate) {
-                model.addAttribute("result", "error");
+            if (isDuplicate) {
+                model.addAttribute("result", "sameFileName");
                 return "result";
-            }
-            else {
+            } else {
 
                 String filename = file.getOriginalFilename();
                 String contenttype = file.getContentType();
                 String filesize = String.valueOf(file.getSize());
                 byte[] filedata = file.getBytes();
 
-                fileService.insertFile(new Files(0,filename, contenttype, filesize,userid, filedata));
-                model.addAttribute("result","success");
+                fileService.insertFile(new Files(0, filename, contenttype, filesize, userid, filedata));
+                model.addAttribute("result", "success");
 
             }
 
+        } catch (Exception e) {
+            model.addAttribute("error", "errorSize");
+            return "error";
+        }
 
         return "result";
 
     }
+
+
     @GetMapping("/remove/{filename}")
+    public String deleteFile(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model, @PathVariable String filename) {
 
-    public String deleteFile(Authentication authentication, @ModelAttribute("fileForm") FileForm fileForm, Model model,@PathVariable String filename ){
-
-        try{
+        try {
 
             String username = authentication.getName();
             int userid = userService.getUser(username).getUserId();
 
             fileService.deleteFile(filename);
-
-
             model.addAttribute("files", this.fileService.getFiles(userid));
             model.addAttribute("result", "deletion-success");
-        }
-        catch(Exception e){
-            model.addAttribute("result","failed");
+        } catch (Exception e) {
+            model.addAttribute("result", "failed");
+            return "error";
 
 
         }
         return "result";
 
     }
-
 
 
 }

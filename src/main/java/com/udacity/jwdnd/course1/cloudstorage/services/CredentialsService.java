@@ -19,11 +19,12 @@ public class CredentialsService {
         this.encryptionService = encryptionService;
     }
 
-    public List<Credentials> getCredentials(int userid){
+    public List<Credentials> getCredentials(int userid) {
         return credentialsMapper.getCredentials(userid);
 
     }
-    public int insertCredentials(Credentials credentials){
+
+    public int insertCredentials(Credentials credentials) {
         SecureRandom random = new SecureRandom();
         byte[] key = new byte[16];
         random.nextBytes(key);
@@ -32,15 +33,16 @@ public class CredentialsService {
          * encrypting the password before storing it
          */
         String encryptedPassword = encryptionService.encryptValue(credentials.getPassword(), encodedKey);
-        return credentialsMapper.insertCredentials(new Credentials(null,credentials.getUrl(),credentials.getUsername(),encodedKey, encryptedPassword, credentials.getUserid()));
+        return credentialsMapper.insertCredentials(new Credentials(null, credentials.getUrl(), credentials.getUsername(), encodedKey, encryptedPassword, credentials.getUserid()));
 
     }
+
     public int updateCredentials(Credentials credentials) {
         SecureRandom random = new SecureRandom();
         byte[] key = new byte[16];
         random.nextBytes(key);
         String encodedKey = Base64.getEncoder().encodeToString(key);
-        String encryptedPassword = encryptionService.encryptValue(credentials.getPassword(),encodedKey);
+        String encryptedPassword = encryptionService.encryptValue(credentials.getPassword(), encodedKey);
         /**
          * while updating the credentials we are updating the key and password
          */
@@ -50,7 +52,7 @@ public class CredentialsService {
 
     }
 
-    public int deleteCredentials(int credentialId){
+    public int deleteCredentials(int credentialId) {
         return credentialsMapper.deleteCredentials(credentialId);
     }
 
