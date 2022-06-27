@@ -12,11 +12,11 @@
         <div class="container justify-content-center w-50 p-3" style="margin-top: 5em;">
             <div th:if="${result == 'success'}" class="alert alert-success fill-parent">
                 <h1 class="display-5" id="success">Success</h1>
-                <span>Your changes were successfully saved. Click <a href="/home">here</a> to continue.</span>
+                <span>Your changes were successfully saved. Click <a href="/home" id="homePageRedirect">here</a> to continue.</span>
             </div>
             <div th:if="${result == 'deletion-success'}" class="alert alert-success fill-parent">
                 <h1 class="display-5" id="successDelete">Success</h1>
-                <span>Your deletions were successfully saved. Click <a href="/home">here</a> to continue.</span>
+                <span>Your deletions were successfully saved. Click <a href="/home" id="deletehomePageRedirect">here</a> to continue.</span>
             </div>
             <div th:if="${result=='failed'}" class="alert alert-danger fill-parent">
                 <h1 class="display-5">Error</h1>

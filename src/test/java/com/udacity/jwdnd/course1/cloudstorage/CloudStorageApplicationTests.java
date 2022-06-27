@@ -11,38 +11,231 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.util.Assert;
 
 import java.io.File;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
 	@LocalServerPort
-	private int port;
+	public int port;
 
-	private WebDriver driver;
+	public static WebDriver driver;
+
+	public String baseURL;
+	private final String firstName = "Sowmya";
+	private final String lastName = "Duggimpudi";
+	private final String userName = "sowmi546";
+	private final String password = "test";
+	private final String noteTitle = "test title";
+	private final String noteDescription = "test description";
+	private final String url = "www.google.com";
+	private final String credUsername =  "test credential";
+	private final String credPassword = "test password";
 
 	@BeforeAll
-	static void beforeAll() {
+	public static void beforeAll() {
 		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+
+	}
+
+	@AfterAll
+	public static void afterAll() {
+		driver.quit();
+		driver = null;
 	}
 
 	@BeforeEach
 	public void beforeEach() {
-		this.driver = new ChromeDriver();
+		baseURL = "http://localhost:" + port;
 	}
 
-	@AfterEach
-	public void afterEach() {
-		if (this.driver != null) {
-			driver.quit();
-		}
+
+	/**
+	 * Test to restrict access to homepage for non logged in user
+	 */
+	@Test
+	public void accessRestrictionForHomePage(){
+		driver.get(baseURL +"/home");
+		Assertions.assertEquals("Login", driver.getTitle());
+
+	}
+
+
+	@Test
+	@Order(1)
+	public void userLoginFlow(){
+
+
+		driver.get(baseURL+"/signup");
+		Assertions.assertEquals("Sign Up", driver.getTitle());
+
+		SignUpPage signupPage =  new SignUpPage(driver);
+		signupPage.signup(firstName, lastName, userName, password);
+
+		driver.get(baseURL+"/login");
+		Assertions.assertEquals("Login", driver.getTitle());
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login(userName, password);
+
+
+
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		//in homepage the user has to click logout button and we need to check he's redirected to login page
+
+		HomePage homePage = new HomePage(driver);
+		homePage.userLogout();
+		Assertions.assertEquals("Login", driver.getTitle());
+
+
+
+
+
+	}
+
+	/**
+	 * login as user and note functionality
+	 */
+	@Test
+	@Order(2)
+	public void notesTests() throws InterruptedException{
+
+		driver.get(baseURL+"/signup");
+		Assertions.assertEquals("Sign Up", driver.getTitle());
+
+		SignUpPage signupPage =  new SignUpPage(driver);
+		signupPage.signup(firstName, lastName, userName, password);
+
+		driver.get(baseURL + "/login");
+		Assertions.assertEquals("Login", driver.getTitle());
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login(userName, password);
+		new WebDriverWait(driver, 5).until(ExpectedConditions.titleIs("Home"));
+
+
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		NotesPage notesPage = new NotesPage(driver);
+		notesPage.clickNotesTab();
+		Thread.sleep(2000);
+		notesPage.addNewNote();
+		Thread.sleep(2000);
+
+		notesPage.fillNotesDetails(noteTitle, noteDescription);
+		Thread.sleep(2000);
+		notesPage.submitNote();
+		Thread.sleep(2000);
+
+		notesPage.redirectHome();
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		notesPage.clickNotesTab();
+		Thread.sleep(2000);
+		Assertions.assertEquals(true, notesPage.noteDisplayed());
+
+		//editing an existing note
+		notesPage.editNote();
+		Thread.sleep(2000);
+
+		notesPage.editNoteDetails("updated title", "updated description");
+		notesPage.submitNote();
+		Thread.sleep(2000);
+		notesPage.redirectHome();
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		notesPage.clickNotesTab();
+		Thread.sleep(2000);
+		Assertions.assertEquals(true, notesPage.noteDisplayed());
+
+		//deleting a note
+		notesPage.deleteNote();
+		Thread.sleep(2000);
+		notesPage.deleteRedirectHome();
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		notesPage.clickNotesTab();
+		Thread.sleep(2000);
+		Assertions.assertEquals(false,notesPage.noteDisplayed() );
 	}
 
 	@Test
-	public void getLoginPage() {
-		driver.get("http://localhost:" + this.port + "/login");
+	public void credentialTests() throws InterruptedException {
+
+		driver.get(baseURL+"/signup");
+		Assertions.assertEquals("Sign Up", driver.getTitle());
+
+		SignUpPage signupPage =  new SignUpPage(driver);
+		signupPage.signup(firstName, lastName, userName, password);
+
+		driver.get(baseURL + "/login");
 		Assertions.assertEquals("Login", driver.getTitle());
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.login(userName, password);
+		new WebDriverWait(driver, 5).until(ExpectedConditions.titleIs("Home"));
+
+
+		Assertions.assertEquals("Home",driver.getTitle());
+		CredentialsPage credentialsPage = new CredentialsPage(driver);
+		credentialsPage.clickCredentialsTab();
+		Thread.sleep(2000);
+		credentialsPage.addNewCredential();
+		Thread.sleep(2000);
+
+		credentialsPage.fillCredentialDetails(url,credUsername,credPassword);
+		Thread.sleep(2000);
+		credentialsPage.submitCredentials();
+		Thread.sleep(2000);
+
+		credentialsPage.redirectHome();
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		credentialsPage.clickCredentialsTab();
+		Thread.sleep(2000);
+		Assertions.assertEquals(true, credentialsPage.credentialDisplayed());
+
+		/** editing an existing credential
+		 *
+		 */
+
+		credentialsPage.editCredential();
+		Thread.sleep(2000);
+
+		credentialsPage.editCredentialDetails("updated url", "updated username", "updated password");
+		credentialsPage.submitCredentials();
+		Thread.sleep(2000);
+		credentialsPage.redirectHome();
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		credentialsPage.clickCredentialsTab();
+		Thread.sleep(2000);
+		Assertions.assertEquals(true, credentialsPage.credentialDisplayed());
+
+		//deleting a note
+		credentialsPage.deleteCredentials();
+		Thread.sleep(2000);
+		credentialsPage.deleteRedirectHome();
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		credentialsPage.clickCredentialsTab();
+		Thread.sleep(2000);
+		Assertions.assertEquals(false,credentialsPage.credentialDisplayed() );
+
+
+
+
 	}
+
+
+
+
+
+
+
+
 
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
@@ -199,6 +392,10 @@ class CloudStorageApplicationTests {
 		Assertions.assertFalse(driver.getPageSource().contains("HTTP Status 403 – Forbidden"));
 
 	}
+
+
+
+
 
 
 
