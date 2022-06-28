@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/bootstrap.min.css}">
+
+    <title>Result</title>
+</head>
+
+<body>
+<div>
+
+    <div th:if="${error=='errorMsg'}" class="alert alert-danger fill-parent">
+        <h1 class="display-5">Error</h1>
+        <h3> The page you are looking for does not exists. Click <a href="/home" id="homePageRedirect">here</a> to go
+            back to homepage</h3>
+    </div>
+
+    <div th:if="${error=='errorSize'}" class="alert alert-danger fill-parent">
+        <h1 class="display-5">Error</h1>
+        <h3> File size is large. Upload a smaller file. Click <a href="/home" id="homeLargeFile">here</a> to go back
+            to homepage</h3>
+    </div>
+</div>
+</body>
